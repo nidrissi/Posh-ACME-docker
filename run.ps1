@@ -26,8 +26,10 @@ if (-not (Get-PAAccount)) {
 # A KeyVault certificate's name cannot contain a dot
 function Import-MyCertificates {
     $SanitizedDomain = $env:My_Domain -replace '\.', '-'
+
     $Certificate = Get-PACertificate
     Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-FullChain" -FilePath $Certificate.PfxFullChain -Password $Certificate.PfxPass
+
     Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-OnlyCert" -FilePath $Certificate.PfxFile -Password $Certificate.PfxPass
 }
 
