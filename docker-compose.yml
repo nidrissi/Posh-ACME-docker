@@ -1,14 +1,8 @@
 version: "3.9"
 services:
-  init:
-    extends:
-      file: common.yml
-      service: app
-    command: "/opt/acme-posh/init.ps1"
-  renew:
-    extends:
-      file: common.yml
-      service: app
-    command: "/opt/acme-posh/renew.ps1"
+  app:
+    build: .
+    volumes:
+      - acme-posh:/var/acme-posh
 volumes:
   acme-posh:
