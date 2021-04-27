@@ -1,7 +1,9 @@
 if ($env:MSI_SECRET) {
+    # Connect to the MSI
     Disable-AzContextAutosave -Scope Process | Out-Null
     Connect-AzAccount -Identity
 
+    # Get an access token for Posh-ACME
     $Subscription = Get-AzSubscription
     $AccessToken = Get-AzAccessToken
     $PluginArguments = @{
@@ -13,6 +15,8 @@ else {
     Write-Error "No identity!"
     exit 1
 }
+
+# Set the server. Possible values: LE_PROD (production), LE_STAGE (staging), etc
 Set-PAServer LE_STAGE
 
 # Create account if none exists
