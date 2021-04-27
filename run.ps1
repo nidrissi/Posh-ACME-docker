@@ -1,19 +1,13 @@
-if ($env:MSI_SECRET) {
-    # Connect to the MSI
-    Disable-AzContextAutosave -Scope Process | Out-Null
-    Connect-AzAccount -Identity
+# Connect to the MSI
+Disable-AzContextAutosave -Scope Process | Out-Null
+Connect-AzAccount -Identity
 
-    # Get an access token for Posh-ACME
-    $Subscription = Get-AzSubscription
-    $AccessToken = Get-AzAccessToken
-    $PluginArguments = @{
-        AZSubscriptionId = $Subscription.Id
-        AZAccessToken    = $AccessToken.Token
-    }
-}
-else {
-    Write-Error "No identity!"
-    exit 1
+# Get an access token for Posh-ACME
+$Subscription = Get-AzSubscription
+$AccessToken = Get-AzAccessToken
+$PluginArguments = @{
+    AZSubscriptionId = $Subscription.Id
+    AZAccessToken    = $AccessToken.Token
 }
 
 # Set the server. Possible values: LE_PROD (production), LE_STAGE (staging), etc
