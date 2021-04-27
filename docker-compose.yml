@@ -3,6 +3,6 @@ services:
   app:
     build: .
     volumes:
-      - acme-posh:/var/acme-posh
+      - acme-posh:/mnt/acishare
 volumes:
   acme-posh:

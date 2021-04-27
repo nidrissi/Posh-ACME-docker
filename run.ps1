@@ -16,7 +16,7 @@ $PluginArguments = @{
 }
 
 # Set the server. Possible values: LE_PROD (production), LE_STAGE (staging), etc
-Set-PAServer LE_STAGE
+Set-PAServer LE_PROD
 
 # Create account if none exists
 if (-not (Get-PAAccount)) {
