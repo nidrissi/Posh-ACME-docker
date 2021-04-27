@@ -8,4 +8,4 @@ RUN [ "pwsh", "-command", "Install-Module", "Posh-ACME", "-Force" ]
 COPY run.ps1 /opt/run.ps1
 
 ENTRYPOINT [ "pwsh", "-Command" ]
-CMD [ "/opt/run.ps1" ]
+CMD [ "/opt/run.ps1", "-Verbose" ]

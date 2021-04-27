@@ -1,10 +1,11 @@
 if (Test-Path $env:POSHACME_HOME/.wait) {
     # if this is the first time, manually wait
-    exit 0
+    Write-Error "I was told to wait!"
+    exit 1
 }
 
 # Connect to the MSI
-Disable-AzContextAutosave -Scope Process | Out-Null
+Disable-AzContextAutosave -Scope Process
 Connect-AzAccount -Identity
 
 # Get an access token for Posh-ACME
@@ -24,10 +25,10 @@ if (-not (Get-PAAccount)) {
 
 # A KeyVault certificate's name cannot contain a dot
 function Import-MyCertificates {
-    $SanitizedDomain = $Domain -replace '\.', '-'
+    $SanitizedDomain = $env:My_Domain -replace '\.', '-'
     $Certificate = Get-PACertificate
-    Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "${SanitizedDomain}-FullChain" -FilePath $Certificate.PfxFullChain -Password $Certificate.PfxPass -Verbose
-    Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "${SanitizedDomain}-OnlyCert" -FilePath $Certificate.PfxFile -Password $Certificate.PfxPass -Verbose
+    Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-FullChain" -FilePath $Certificate.PfxFullChain -Password $Certificate.PfxPass
+    Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-OnlyCert" -FilePath $Certificate.PfxFile -Password $Certificate.PfxPass
 }
 
 if (-not (Get-PACertificate -MainDomain $env:My_Domain)) {
