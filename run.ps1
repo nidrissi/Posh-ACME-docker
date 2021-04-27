@@ -1,12 +1,16 @@
+if (Test-Path $env:POSHACME_HOME/.wait) {
+    # if this is the first time, manually wait
+    exit 0
+}
+
 # Connect to the MSI
 Disable-AzContextAutosave -Scope Process | Out-Null
 Connect-AzAccount -Identity
 
 # Get an access token for Posh-ACME
-$Subscription = Get-AzSubscription
 $AccessToken = Get-AzAccessToken
 $PluginArguments = @{
-    AZSubscriptionId = $Subscription.Id
+    AZSubscriptionId = $env:My_SubscriptionId
     AZAccessToken    = $AccessToken.Token
 }
 
