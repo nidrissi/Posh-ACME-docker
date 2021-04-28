@@ -1,9 +1,3 @@
-if (Test-Path $env:POSHACME_HOME/.wait) {
-    # if this is the first time, manually wait
-    Write-Host "I was told to wait!"
-    exit 1
-}
-
 # Connect to the MSI
 Disable-AzContextAutosave -Scope Process
 Connect-AzAccount -Identity
