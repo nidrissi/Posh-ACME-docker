@@ -1,0 +1,118 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "0.4.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "[concat('st', replace(resourceGroup().name, '-', ''), uniqueString(resourceGroup().id))]",
+            "metadata": {
+                "description": "Specifies the name of the Azure Storage account."
+            }
+        },
+        "email": {
+            "type": "string",
+            "metadata": {
+                "description": "The contact email associated to the Let's Encrypt account."
+            }
+        },
+        "domain": {
+            "type": "string",
+            "metadata": {
+                "description": "The domain for which we want to obtain the certificate."
+            }
+        },
+        "imageVersion": {
+            "type": "string",
+            "metadata": {
+                "description": "The version of the nidrissi/posh-acme Docker image to be used."
+            }
+        }
+    },
+    "resources": [
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[concat(resourceGroup().name, ' - Storage Account')]"
+            },
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "allowBlobPublicAccess": false
+            }
+        },
+        {
+            "name": "[concat(parameters('storageAccountName'), '/default/acishare')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "tags": {
+                "displayName": "[concat(resourceGroup().id, ' - Storage Accout - File Share')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ]
+        },
+        {
+            "name": "[concat('kv-', resourceGroup().name, '-', uniqueString(resourceGroup().id))]",
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2016-10-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[concat(resourceGroup().name, ' - Key Vault')]"
+            },
+            "properties": {
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": true,
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": [
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "objectId",
+                        "permissions": {
+                            "certificates": [ "get", "list", "import", "delete", "update" ]
+                        }
+                    }
+                ],
+                "sku": {
+                    "name": "standard",
+                    "family": "A"
+                }
+            }
+        },
+        {
+            "name": "[concat('aci-', toLower(resourceGroup().name), '-', uniqueString(resourceGroup().id))]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-10-01",
+            "tags": {
+                "displayName": "[concat(resourceGroup().name, ' - Azure Container Instance')]"
+            },
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "containers": [
+                    {
+                        "name": "containerName",
+                        "properties": {
+                            "image": "[concat('nidrissi/posh-acme:', parameters('imageVersion'))]",
+                            "resources": {
+                                "requests": {
+                                    "cpu": 1,
+                                    "memoryInGB": 1.5
+                                }
+                            }
+                        }
+                    }
+                ],
+                "osType": "Linux"
+            }
+        }
+    ]
+}
