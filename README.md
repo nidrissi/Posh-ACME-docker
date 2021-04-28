@@ -4,9 +4,10 @@ An Azure-containerized version of [Posh-ACME](https://github.com/rmbolger/Posh-A
 
 ## Prerequisites
 
-- An [Azure account](https://azure.microsoft.com/);
-- An [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/);
+- An [Azure account](https://azure.microsoft.com/).
+- An [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/).
 - An [Azure-hosted DNS zone](https://azure.microsoft.com/en-us/services/dns/) for your domain.
+- (Optional) If you want to use the `create.ps1` script, [Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/get-started-azureps) must be installed.
 
 ## To test locally
 
