@@ -56,8 +56,7 @@
             },
             "properties": {
                 "accessTier": "TransactionOptimized",
-                "shareQuota": 1,
-                "enabledProtocols": "SMB"
+                "shareQuota": 1
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
