@@ -4,5 +4,10 @@ services:
     build: .
     volumes:
       - acme-posh:/mnt/acishare
+    environment:
+      MyEmail: "john.doe@example.com"
+      My_KeyVault: "kv-Example-KeyVault"
+      My_Domain: "example.com"
+      My_SubscriptionId: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 volumes:
   acme-posh:
