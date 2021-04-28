@@ -2,13 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "0.4.0.0",
     "parameters": {
-        "storageAccountName": {
-            "type": "string",
-            "defaultValue": "[concat('st', replace(resourceGroup().name, '-', ''), uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description": "Specifies the name of the Azure Storage account."
-            }
-        },
         "email": {
             "type": "string",
             "metadata": {
@@ -28,9 +21,15 @@
             }
         }
     },
+    "variables": {
+        "aciName": "[concat('aci-', toLower(resourceGroup().name), '-', uniqueString(resourceGroup().id))]",
+        "keyVaultName": "[concat('kv-', resourceGroup().name, '-', uniqueString(resourceGroup().id))]",
+        "storageAccountName": "[concat('st', replace(resourceGroup().name, '-', ''), uniqueString(resourceGroup().id))]",
+        "fileShareName": "[concat(variables('storageAccountName'), '/default/acishare')]"
+    },
     "resources": [
         {
-            "name": "[parameters('storageAccountName')]",
+            "name": "[variables('storageAccountName')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
             "location": "[resourceGroup().location]",
@@ -47,18 +46,18 @@
             }
         },
         {
-            "name": "[concat(parameters('storageAccountName'), '/default/acishare')]",
+            "name": "[variables('fileShareName')]",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2019-06-01",
             "tags": {
                 "displayName": "[concat(resourceGroup().id, ' - Storage Accout - File Share')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ]
         },
         {
-            "name": "[concat('kv-', resourceGroup().name, '-', uniqueString(resourceGroup().id))]",
+            "name": "[variables('keyVaultName')]",
             "type": "Microsoft.KeyVault/vaults",
             "apiVersion": "2016-10-01",
             "location": "[resourceGroup().location]",
@@ -73,7 +72,7 @@
                 "accessPolicies": [
                     {
                         "tenantId": "[subscription().tenantId]",
-                        "objectId": "objectId",
+                        "objectId": "[reference(variables('aciName'), '2019-12-01', 'Full').identity.objectId]",
                         "permissions": {
                             "certificates": [ "get", "list", "import", "delete", "update" ]
                         }
@@ -83,12 +82,15 @@
                     "name": "standard",
                     "family": "A"
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('aciName')]"
+            ]
         },
         {
-            "name": "[concat('aci-', toLower(resourceGroup().name), '-', uniqueString(resourceGroup().id))]",
+            "name": "[variables('aciName')]",
             "type": "Microsoft.ContainerInstance/containerGroups",
-            "apiVersion": "2018-10-01",
+            "apiVersion": "2019-12-01",
             "tags": {
                 "displayName": "[concat(resourceGroup().name, ' - Azure Container Instance')]"
             },
@@ -99,20 +101,42 @@
             "properties": {
                 "containers": [
                     {
-                        "name": "containerName",
+                        "name": "[concat(variables('aciName'), '-container')]",
                         "properties": {
-                            "image": "[concat('nidrissi/posh-acme:', parameters('imageVersion'))]",
+                            "image": "[concat('nidrissi/posh-acme', ':', parameters('imageVersion'))]",
                             "resources": {
                                 "requests": {
                                     "cpu": 1,
-                                    "memoryInGB": 1.5
+                                    "memoryInGB": 1
                                 }
-                            }
+                            },
+                            "environmentVariables": [
+                                {
+                                    "name": "My_SubscriptionId",
+                                    "value": "[subscription().id]"
+                                },
+                                {
+                                    "name": "My_Email",
+                                    "value": "[parameters('email')]"
+                                },
+                                {
+                                    "name": "My_KeyVault",
+                                    "value": "[variables('keyVaultName')]"
+                                },
+                                {
+                                    "name": "My_Domain",
+                                    "value": "[parameters('domain')]"
+                                }
+                            ]
                         }
                     }
                 ],
-                "osType": "Linux"
-            }
+                "osType": "Linux",
+                "restartPolicy": "Never"
+            },
+            "dependsOn": [
+                "[variables('fileShareName')]"
+            ]
         }
     ]
 }
