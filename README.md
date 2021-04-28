@@ -22,9 +22,10 @@ This should automatically obtain an SSL certificate from [Let's Encrypt](https:/
 
 ## To deploy
 
-1. Create a storage account and a [file share](https://azure.microsoft.com/en-us/services/storage/files/) named `acishare`; at first, create a single file named `.wait` inside.
-2. Edit [`create.ps1`](./create.ps1) with your information and run it. This will create an [Azure Container Instance](https://azure.microsoft.com/en-us/services/container-instances/) that pulls my [docker image](https://hub.docker.com/r/nidrissi/posh-acme).
-3. However, it would fail because it doesn't have the correct permissions. The instance will have a [managed identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview). Grant that identity access to the storage account that you created earlier, and to your key vault.
-4. Remove the `.wait` file from the file share to tell the container to actually do stuff this time.
-5. Start the container instance again. Now it should work!
-6. (Optional) Create a [Logic app](https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-overview) (or an Azure function if you prefer) to start the container periodically. It will automatically check if a new certificate is needed. If so, it will obtain it and upload it to the key vault.
+1. Create a resource group.
+2. ## Run the [`deploy.ps1`](./deploy.ps1) script. Its parameters are:
+   - `$ResourceGroup`: The name of the resource group you just created.
+   - `$ZoneResourceGroup`: The name of the resource group in which your DNS zone lives.
+   - `$ZoneName`: The name of your DNS zone.
+
+Everything should work. Feel free to report any bugs.
