@@ -1,4 +1,4 @@
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding()]
 param (
     [Parameter(Mandatory)]
     [string]
@@ -16,7 +16,7 @@ $Deployment = New-AzResourceGroupDeployment -Name 'Posh-ACME' -ResourceGroupName
 # Immediately stop the container
 
 # Get the Container Group
-$ContainerGroup = Get-AzContainerGroup -ResourceGroupName rg-Test -Name $Deployment.Outputs.container.Value
+$ContainerGroup = Get-AzContainerGroup -ResourceGroupName $ResourceGroup -Name $Deployment.Outputs.container.Value
 Invoke-AzResourceAction -ResourceId $ContainerGroup.Id -Action stop -Force
 
 # The zone
