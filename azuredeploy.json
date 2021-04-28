@@ -1,6 +1,6 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "0.4.1.0",
+    "contentVersion": "0.4.2.0",
     "parameters": {
         "email": {
             "type": "string",
@@ -69,7 +69,7 @@
                 "displayName": "[concat(variables('appPrefix'), ' - Storage Accout - ACI File Share')]"
             },
             "properties": {
-                "accessTier": "TransactionOptimized",
+                "accessTier": "Cool",
                 "shareQuota": 1
             },
             "dependsOn": [
@@ -85,23 +85,39 @@
                 "displayName": "[concat(variables('appPrefix'), ' - Key Vault')]"
             },
             "properties": {
-                "enabledForDeployment": true,
-                "enabledForTemplateDeployment": true,
-                "enabledForDiskEncryption": true,
                 "tenantId": "[subscription().tenantId]",
                 "accessPolicies": [
                     {
                         "tenantId": "[subscription().tenantId]",
                         "objectId": "[reference(variables('aciName'), '2019-12-01', 'Full').identity.principalId]",
                         "permissions": {
-                            "certificates": [ "get", "list", "import", "delete", "update" ]
+                            "certificates": [ "get", "list", "import", "delete", "update", "create" ]
+                        }
+                    },
+                    {
+                        // Azure CDN
+                        // https://docs.microsoft.com/en-us/azure/cdn/cdn-custom-ssl
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "8a213330-3e98-409c-9c05-d95b70e69d3c",
+                        "permissions": {
+                            "keys": [],
+                            "secrets": [
+                                "Get",
+                                "List"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List"
+                            ]
                         }
                     }
                 ],
                 "sku": {
                     "name": "standard",
                     "family": "A"
-                }
+                },
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90
             }
         },
         {
