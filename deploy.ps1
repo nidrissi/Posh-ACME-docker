@@ -1,12 +1,12 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string]
     $ResourceGroup,
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string]
     $ZoneResourceGroup,
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string]
     $ZoneName
 )
