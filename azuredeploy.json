@@ -89,10 +89,7 @@
                     "name": "standard",
                     "family": "A"
                 }
-            },
-            "dependsOn": [
-                "[variables('aciName')]"
-            ]
+            }
         },
         {
             "name": "[variables('aciName')]",
