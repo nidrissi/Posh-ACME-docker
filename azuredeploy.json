@@ -225,7 +225,7 @@
                         }
                     },
                     "triggers": {
-                        "Recurrence": {
+                        "Every day": {
                             "recurrence": {
                                 "frequency": "Day",
                                 "interval": 1
@@ -234,7 +234,7 @@
                         }
                     },
                     "actions": {
-                        "start_container_groups": {
+                        "Start_container_groups": {
                             "runAfter": {},
                             "type": "ApiConnection",
                             "inputs": {
@@ -257,7 +257,6 @@
                         "value": {
                             "aci": {
                                 "connectionId": "[resourceId('Microsoft.Web/connections', variables('apiAciName'))]",
-                                "connectionName": "aci",
                                 "id": "[variables('apiId')]"
                             }
                         }
