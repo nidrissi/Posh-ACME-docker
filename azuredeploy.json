@@ -120,7 +120,7 @@
                             "environmentVariables": [
                                 {
                                     "name": "My_SubscriptionId",
-                                    "value": "[subscription().id]"
+                                    "value": "[subscription().subscriptionId]"
                                 },
                                 {
                                     "name": "My_Email",
