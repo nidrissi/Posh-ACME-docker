@@ -23,10 +23,14 @@
     },
     "variables": {
         "appPrefix": "[replace(resourceGroup().name, 'rg-', '')]",
-        "aciName": "[concat('aci-', toLower(variables('appPrefix')), '-', uniqueString(resourceGroup().id))]",
-        "keyVaultName": "[concat('kv-', variables('appPrefix'), '-', uniqueString(resourceGroup().id))]",
-        "storageAccountName": "[concat('st', toLower(replace(variables('appPrefix'), '-', '')), uniqueString(resourceGroup().id))]",
-        "fileShareName": "acishare"
+        "uniqueString": "[uniqueString(resourceGroup().id)]",
+        "aciName": "[concat('aci-', toLower(variables('appPrefix')), '-', variables('uniqueString'))]",
+        "keyVaultName": "[concat('kv-', variables('appPrefix'), '-', variables('uniqueString'))]",
+        "storageAccountName": "[concat('st', toLower(replace(variables('appPrefix'), '-', '')), variables('uniqueString'))]",
+        "fileShareName": "acishare",
+        "apiAciName": "[concat('api-', variables('appPrefix'), '-', variables('uniqueString'))]",
+        "apiId": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'aci')]",
+        "logicAppName": "[concat('la-', variables('appPrefix'), '-', variables('uniqueString'))]"
     },
     "outputs": {
         "storageAccount": {
@@ -187,6 +191,77 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]"
             ]
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('apiAciName')]",
+            "kind": "V1",
+            "properties": {
+                "api": {
+                    "id": "[variables('apiId')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[variables('logicAppName')]",
+            "dependsOn": [
+                "[variables('apiAciName')]",
+                "[variables('aciName')]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "start_container_groups": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['aci']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "[concat(resourceId('Microsoft.ContainerInstance/containerGroups', variables('aciName')), '/start')]",
+                                "queries": {
+                                    "x-ms-api-version": "2019-12-01"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "aci": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('apiAciName'))]",
+                                "connectionName": "aci",
+                                "id": "[variables('apiId')]"
+                            }
+                        }
+                    }
+                }
+            }
         }
     ]
 }
