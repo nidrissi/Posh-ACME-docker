@@ -28,6 +28,20 @@
         "storageAccountName": "[concat('st', toLower(replace(variables('appPrefix'), '-', '')), uniqueString(resourceGroup().id))]",
         "fileShareName": "acishare"
     },
+    "outputs": {
+        "storageAccount": {
+            "type": "string",
+            "value": "[variables('storageAccountName')]"
+        },
+        "keyVault": {
+            "type": "string",
+            "value": "[variables('keyVaultName')]"
+        },
+        "ACI": {
+            "type": "string",
+            "value": "[variables('aciName')]"
+        }
+    },
     "resources": [
         {
             "name": "[variables('storageAccountName')]",
