@@ -23,7 +23,7 @@ This should automatically obtain an SSL certificate from [Let's Encrypt](https:/
 ## To deploy
 
 1. Create a resource group.
-2. ## Run the [`deploy.ps1`](./deploy.ps1) script. Its parameters are:
+2. Run the [`deploy.ps1`](./deploy.ps1) script. Its parameters are:
    - `$ResourceGroup`: The name of the resource group you just created.
    - `$ZoneResourceGroup`: The name of the resource group in which your DNS zone lives.
    - `$ZoneName`: The name of your DNS zone.
