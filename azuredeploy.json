@@ -22,10 +22,11 @@
         }
     },
     "variables": {
-        "aciName": "[concat('aci-', toLower(resourceGroup().name), '-', uniqueString(resourceGroup().id))]",
-        "keyVaultName": "[concat('kv-', resourceGroup().name, '-', uniqueString(resourceGroup().id))]",
-        "storageAccountName": "[concat('st', replace(resourceGroup().name, '-', ''), uniqueString(resourceGroup().id))]",
-        "fileShareName": "[concat(variables('storageAccountName'), '/default/acishare')]"
+        "appPrefix": "[replace(resourceGroup().name, 'rg-', '')]",
+        "aciName": "[concat('aci-', toLower(variables('appPrefix')), '-', uniqueString(resourceGroup().id))]",
+        "keyVaultName": "[concat('kv-', variables('appPrefix'), '-', uniqueString(resourceGroup().id))]",
+        "storageAccountName": "[concat('st', toLower(replace(variables('appPrefix'), '-', '')), uniqueString(resourceGroup().id))]",
+        "fileShareName": "acishare"
     },
     "resources": [
         {
@@ -34,7 +35,7 @@
             "apiVersion": "2019-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "[concat(resourceGroup().name, ' - Storage Account')]"
+                "displayName": "[concat(variables('appPrefix'), ' - Storage Account')]"
             },
             "kind": "StorageV2",
             "sku": {
@@ -42,18 +43,36 @@
                 "tier": "Standard"
             },
             "properties": {
-                "allowBlobPublicAccess": false
+                "allowBlobPublicAccess": false,
+                "accessTier": "Cool"
             }
         },
         {
-            "name": "[variables('fileShareName')]",
+            "name": "[concat(variables('storageAccountName'), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2021-01-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            }
+        },
+        {
+            "name": "[concat(variables('storageAccountName'), '/default/', variables('fileShareName'))]",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2019-06-01",
             "tags": {
-                "displayName": "[concat(resourceGroup().id, ' - Storage Accout - File Share')]"
+                "displayName": "[concat(variables('appPrefix'), ' - Storage Accout - ACI File Share')]"
+            },
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 1,
+                "enabledProtocols": "SMB"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('storageAccountName'), 'default')]"
             ]
         },
         {
@@ -62,7 +81,7 @@
             "apiVersion": "2016-10-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "[concat(resourceGroup().name, ' - Key Vault')]"
+                "displayName": "[concat(variables('appPrefix'), ' - Key Vault')]"
             },
             "properties": {
                 "enabledForDeployment": true,
@@ -92,7 +111,7 @@
             "type": "Microsoft.ContainerInstance/containerGroups",
             "apiVersion": "2019-12-01",
             "tags": {
-                "displayName": "[concat(resourceGroup().name, ' - Azure Container Instance')]"
+                "displayName": "[concat(variables('appPrefix'), ' - Azure Container Instance')]"
             },
             "location": "[resourceGroup().location]",
             "identity": {
@@ -131,7 +150,7 @@
                             "volumeMounts": [
                                 {
                                     "mountPath": "/mnt/acishare",
-                                    "name": "acishare"
+                                    "name": "[variables('fileShareName')]"
                                 }
                             ]
                         }
@@ -141,18 +160,17 @@
                 "restartPolicy": "Never",
                 "volumes": [
                     {
-                        "name": "acishare",
+                        "name": "[variables('fileShareName')]",
                         "azureFile": {
                             "storageAccountName": "[variables('storageAccountName')]",
-                            "shareName": "acishare",
+                            "shareName": "[variables('fileShareName')]",
                             "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-04-01').keys[0].value]"
                         }
                     }
                 ]
             },
             "dependsOn": [
-                "[variables('storageAccountName')]",
-                "[variables('fileShareName')]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]"
             ]
         }
     ]
