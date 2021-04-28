@@ -12,10 +12,12 @@ param (
 )
 
 # Deploy
+Write-Verbose "Starting the deployment."
 $Deployment = New-AzResourceGroupDeployment -Name 'Posh-ACME' -ResourceGroupName $ResourceGroup -TemplateFile .\azuredeploy.json -TemplateParameterFile .\azuredeploy.parameters.json
 # Immediately stop the container
 
 # Get the Container Group
+Write-Verbose "Stopping the container."
 $ContainerGroup = Get-AzContainerGroup -ResourceGroupName $ResourceGroup -Name $Deployment.Outputs.container.Value
 Invoke-AzResourceAction -ResourceId $ContainerGroup.Id -Action stop -Force
 
@@ -29,9 +31,16 @@ $RoleArguments = @{
     RoleDefinitionName = "DNS Zone Contributor";
     Scope              = $ZoneScope
 }
+Write-Verbose "Checking if role is assigned."
 if (-not (Get-AzRoleAssignment @RoleArguments)) {
+    Write-Verbose "Assigning role."
     New-AzRoleAssignment @RoleArguments
+}
+else {
+    Write-Verbose "Not assigning role: already assigned."
 }
 
 # Start the container, for real this time
+Write-Verbose "Starting the container."
 Invoke-AzResourceAction -ResourceId $ContainerGroup.Id -Action start -Force
+Write-Warning "Ignore the previous error message if it says 'No HTTP resource was found that matches the request URI'..." # I should investigate
