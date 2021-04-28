@@ -127,14 +127,31 @@
                                     "name": "My_Domain",
                                     "value": "[parameters('domain')]"
                                 }
+                            ],
+                            "volumeMounts": [
+                                {
+                                    "mountPath": "/mnt/acishare",
+                                    "name": "acishare"
+                                }
                             ]
                         }
                     }
                 ],
                 "osType": "Linux",
-                "restartPolicy": "Never"
+                "restartPolicy": "Never",
+                "volumes": [
+                    {
+                        "name": "acishare",
+                        "azureFile": {
+                            "storageAccountName": "[variables('storageAccountName')]",
+                            "shareName": "acishare",
+                            "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-04-01').keys[0].value]"
+                        }
+                    }
+                ]
             },
             "dependsOn": [
+                "[variables('storageAccountName')]",
                 "[variables('fileShareName')]"
             ]
         }
