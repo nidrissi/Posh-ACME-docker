@@ -24,7 +24,14 @@ $ZoneResource = Get-AzResource -ResourceGroupName $ZoneResourceGroup -Name $Zone
 $ZoneScope = $ZoneResource.ResourceId
 
 # Roles
-New-AzRoleAssignment -ObjectId $ContainerGroup.Identity.PrincipalId -RoleDefinitionName "DNS Zone Contributor" -Scope $ZoneScope
+$RoleArguments = @{
+    ObjectId           = $ContainerGroup.Identity.PrincipalId;
+    RoleDefinitionName = "DNS Zone Contributor";
+    Scope              = $ZoneScope
+}
+if (-not (Get-AzRoleAssignment @RoleArguments)) {
+    New-AzRoleAssignment @RoleArguments
+}
 
 # Start the container, for real this time
 Invoke-AzResourceAction -ResourceId $ContainerGroup.Id -Action start -Force
