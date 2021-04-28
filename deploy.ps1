@@ -14,14 +14,11 @@ param (
 # Deploy
 Write-Verbose "Starting the deployment."
 $Deployment = New-AzResourceGroupDeployment -Name 'Posh-ACME' -ResourceGroupName $ResourceGroup -TemplateFile .\azuredeploy.json -TemplateParameterFile .\azuredeploy.parameters.json
-# Immediately stop the container
 
 # Get the Container Group
 if ($Deployment.Outputs) {
     Write-Verbose "Getting the container group"
     $ContainerGroup = Get-AzContainerGroup -ResourceGroupName $ResourceGroup -Name $Deployment.Outputs.container.Value
-    Write-Verbose "Stopping the container."
-    Invoke-AzResourceAction -ResourceId $ContainerGroup.Id -Action stop -Force
 
     # The zone
     $ZoneResource = Get-AzResource -ResourceGroupName $ZoneResourceGroup -Name $ZoneName
