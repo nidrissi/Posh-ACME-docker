@@ -12,8 +12,8 @@ An Azure-containerized version of [Posh-ACME](https://github.com/rmbolger/Posh-A
 
 ## To test locally
 
-1. Edit [`docker-compose.yml`](./docker-compose.yml) with your environment variables.
-2. Change `Connect-AzAccount -Identity` to `Connect-AzAccount -UseDeviceAuthentication` in [`run.ps1`](./run.ps1) (the idea is that you will login with your own credentials, rather than the system-managed identity).
+1. Edit [`docker-compose.yml`](./Image/docker-compose.yml) with your environment variables.
+2. Change `Connect-AzAccount -Identity` to `Connect-AzAccount -UseDeviceAuthentication` in [`run.ps1`](./Image/run.ps1) (the idea is that you will login with your own credentials, rather than the system-managed identity).
 3. (Optional) Change `LE_PROD` to `LE_STAGE` in `run.ps1`.
 4. Run `docker compose up`.
 5. When prompted, perform the steps to login to Azure.
@@ -23,9 +23,10 @@ This should automatically obtain an SSL certificate from [Let's Encrypt](https:/
 ## To deploy
 
 1. Create a resource group.
-2. Run the [`deploy.ps1`](./deploy.ps1) script. Its parameters are:
+2. Run the [`deploy.ps1`](./Deploy/deploy.ps1) script. Its parameters are:
    - `$ResourceGroup`: The name of the resource group you just created.
    - `$ZoneResourceGroup`: The name of the resource group in which your DNS zone lives.
    - `$ZoneName`: The name of your DNS zone.
+3. Currently the docker container isn't run every day. Create a Logic App or an Azure Function to that make happen. It's working on automating that too.
 
 Everything should work. Feel free to report any bugs.
