@@ -1,3 +1,8 @@
+if (-not (Test-Path $env:POSHACME_HOME/.ok)) {
+    Write-Host "I was told to wait!"
+    exit 1
+}
+
 # Connect to the MSI
 Disable-AzContextAutosave -Scope Process
 Connect-AzAccount -Identity
@@ -10,7 +15,7 @@ $PluginArguments = @{
 }
 
 # Set the server. Possible values: LE_PROD (production), LE_STAGE (staging), etc
-Set-PAServer LE_PROD
+Set-PAServer LE_STAGE
 
 # Create account if none exists
 if (-not (Get-PAAccount)) {
