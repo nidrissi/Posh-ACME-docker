@@ -48,18 +48,6 @@
             }
         },
         {
-            "name": "[concat(variables('storageAccountName'), '/default')]",
-            "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2021-01-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            }
-        },
-        {
             "name": "[concat(variables('storageAccountName'), '/default/', variables('fileShareName'))]",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2019-06-01",
@@ -72,7 +60,7 @@
                 "enabledProtocols": "SMB"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('storageAccountName'), 'default')]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ]
         },
         {
