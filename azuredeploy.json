@@ -37,7 +37,7 @@
             "type": "string",
             "value": "[variables('keyVaultName')]"
         },
-        "ACI": {
+        "container": {
             "type": "string",
             "value": "[variables('aciName')]"
         }
