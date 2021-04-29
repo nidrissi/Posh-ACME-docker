@@ -27,6 +27,6 @@ This should automatically obtain an SSL certificate from [Let's Encrypt](https:/
    - `$ResourceGroup`: The name of the resource group you just created.
    - `$ZoneResourceGroup`: The name of the resource group in which your DNS zone lives.
    - `$ZoneName`: The name of your DNS zone.
-3. Currently the docker container isn't run every day. Create a Logic App or an Azure Function to that make happen. It's working on automating that too.
+3. The Logic App may require manual attention (the API connection isn't authenticated at first).
 
 Everything should work. Feel free to report any bugs.
