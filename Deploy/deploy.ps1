@@ -47,6 +47,20 @@ if ($Deployment.Outputs) {
 Ignore the previous error message if it says:
 > No HTTP resource was found that matches the request URI
 "@
+
+    $ConnectionName = $Deployment.Outputs.apiConnection.value
+    Write-Verbose "Getting connection $ConnectionName"
+    $Connection = Get-AzResource -ResourceType 'Microsoft.Web/connections' -ResourceGroupName $ResourceGroup -ResourceName 'aci'
+    $Status = $Connection.Properties.Statuses[0].status
+    if ($Status -ne 'Connected') {
+        Write-Warning "API status is $Status"
+        $LogicApp = $Deployment.Outputs.logicAppName.Value
+        # I should find a way to do this automatically
+        "It may need authenticating:!- Go to the portal;!- Open the Logic App $LogicApp;!- In the designer, click on the action;!- Modify the connection and authorize it." -split '!' | Write-Warning
+    }
+    else {
+        Write-Verbose "API connection already established."
+    }
 }
 else {
     Write-Warning "No outputs!"
