@@ -8,10 +8,10 @@
                 "description": "The contact email associated to the Let's Encrypt account."
             }
         },
-        "domain": {
+        "domains": {
             "type": "string",
             "metadata": {
-                "description": "The domain for which we want to obtain the certificate."
+                "description": "The list of domains for which we want to obtain the certificate, separated by semicolons."
             }
         },
         "imageVersion": {
@@ -164,8 +164,8 @@
                                     "value": "[variables('keyVaultName')]"
                                 },
                                 {
-                                    "name": "My_Domain",
-                                    "value": "[parameters('domain')]"
+                                    "name": "My_Domains",
+                                    "value": "[parameters('domains')]"
                                 }
                             ],
                             "volumeMounts": [
