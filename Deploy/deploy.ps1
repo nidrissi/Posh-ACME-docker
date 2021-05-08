@@ -20,7 +20,7 @@ if ($Deployment.Outputs) {
     foreach ($ZoneName in $ZoneNames) {
         Write-Verbose "Working on zone $ZoneName."
         # The zone
-        $ZoneResource = Get-AzResource -Name $ZoneName
+        $ZoneResource = Get-AzResource -Name $ZoneName -ResourceType 'Microsoft.Network/dnszones'
         $ZoneScope = $ZoneResource.ResourceId
         Write-Verbose "Zone ID: $ZoneScope"
 
