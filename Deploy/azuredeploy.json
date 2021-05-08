@@ -227,10 +227,10 @@
                         }
                     },
                     "triggers": {
-                        "Every day": {
+                        "Every 3 days": {
                             "recurrence": {
                                 "frequency": "Day",
-                                "interval": 1
+                                "interval": 3
                             },
                             "type": "Recurrence"
                         }
