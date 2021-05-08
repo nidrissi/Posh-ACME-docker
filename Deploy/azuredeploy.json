@@ -11,7 +11,7 @@
         "domains": {
             "type": "string",
             "metadata": {
-                "description": "The list of domains for which we want to obtain the certificate, separated by semicolons."
+                "description": "The list of domains for which we want to obtain the certificates, separated by semicolons."
             }
         },
         "imageVersion": {
