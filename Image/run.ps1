@@ -19,25 +19,59 @@ if (-not (Get-PAAccount)) {
     New-PAAccount -Contact $env:My_Email -AcceptTOS
 }
 
+# $env:My_Domains contains a ';'-separated list of domains
+$Domains = $env:My_Domains -split ' *; *'
+
 # A KeyVault certificate's name cannot contain a dot
 function Import-MyCertificates {
-    $SanitizedDomain = $env:My_Domain -replace '\.', '-'
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [string]
+        $Domain,
+        [Parameter()]
+        [boolean]
+        $All
+    )
 
-    $Certificate = Get-PACertificate
-    Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-FullChain" -FilePath $Certificate.PfxFullChain -Password $Certificate.PfxPass
+    $DomainsToImport = @()
+    if ($All) {
+        $DomainsToImport = $Domains
+    }
+    elseif ($Domain) {
+        $DomainsToImport = @($Domain)
+    }
+    else {
+        Write-Error "One of -All or -Domain must be specified"
+        exit 1
+    }
 
-    Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-OnlyCert" -FilePath $Certificate.PfxFile -Password $Certificate.PfxPass
+    foreach ($CurrentDomain in $DomainsToImport) {
+        # A KeyVault certificate's name cannot contain a dot
+        $SanitizedDomain = $env:Domain -replace '\.', '-'
+
+        # Get the certificate info for the domain
+        $Certificate = Get-PACertificate -MainDomain $CurrentDomain
+
+        # Import both the full chain and the certificate
+        Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-FullChain" -FilePath $Certificate.PfxFullChain -Password $Certificate.PfxPass
+
+        Import-AzKeyVaultCertificate -VaultName $env:My_KeyVault -Name "$SanitizedDomain-OnlyCert" -FilePath $Certificate.PfxFile -Password $Certificate.PfxPass
+    }
 }
 
-if (-not (Get-PACertificate -MainDomain $env:My_Domain)) {
-    # If no certificate exists, create it...
-    New-PACertificate -Plugin Azure -PluginArgs $PluginArguments -Domain ($env:My_Domain, ("*.{0}" -f $env:My_Domain))
-    #...and import the key
-    Import-MyCertificates
+# On the first run, we may not have certificates already
+foreach ($CurrentDomain in $Domains) {
+    if (-not (Get-PACertificate -MainDomain $CurrentDomain)) {
+        # If no certificate exists, create it...
+        New-PACertificate -Plugin Azure -PluginArgs $PluginArguments -Domain ($CurrentDomain, ("*.{0}" -f $CurrentDomain))
+        #...and import the key
+        Import-MyCertificates
+    }
 }
 else {
     if (Submit-Renewal) {
         # Only import if there was a renewal
-        Import-MyCertificates
+        Import-MyCertificates -All
     }
 }
