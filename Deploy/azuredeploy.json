@@ -23,13 +23,12 @@
     },
     "variables": {
         "appPrefix": "[replace(resourceGroup().name, 'rg-', '')]",
-        "uniqueString": "[uniqueString(resourceGroup().id)]",
-        "aciName": "[concat('aci-', toLower(variables('appPrefix')), '-', variables('uniqueString'))]",
-        "keyVaultName": "[concat('kv-', variables('appPrefix'), '-', variables('uniqueString'))]",
-        "storageAccountName": "[concat('st', toLower(replace(variables('appPrefix'), '-', '')), variables('uniqueString'))]",
+        "aciName": "[concat('aci-', toLower(variables('appPrefix')))]",
+        "keyVaultName": "[concat('kv-', variables('appPrefix'))]",
+        "storageAccountName": "[concat('st', toLower(replace(variables('appPrefix'), '-', '')))]",
         "fileShareName": "acishare",
         "apiId": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'aci')]",
-        "logicAppName": "[concat('la-', variables('appPrefix'), '-', variables('uniqueString'))]"
+        "logicAppName": "[concat('la-', variables('appPrefix'))]"
     },
     "outputs": {
         "storageAccount": {
