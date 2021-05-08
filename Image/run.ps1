@@ -66,12 +66,12 @@ foreach ($CurrentDomain in $Domains) {
         # If no certificate exists, create it...
         New-PACertificate -Plugin Azure -PluginArgs $PluginArguments -Domain ($CurrentDomain, ("*.{0}" -f $CurrentDomain))
         #...and import the key
-        Import-MyCertificates
+        Import-MyCertificates -Domain $CurrentDomain
     }
 }
-else {
-    if (Submit-Renewal) {
-        # Only import if there was a renewal
-        Import-MyCertificates -All
-    }
+
+# On subsequent runs, renew and import everything if there was a renewal
+if (Submit-Renewal) {
+    # Only import if there was a renewal
+    Import-MyCertificates -All
 }
