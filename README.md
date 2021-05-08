@@ -23,10 +23,13 @@ This should automatically obtain an SSL certificate from [Let's Encrypt](https:/
 ## To deploy
 
 1. Create a resource group.
-2. Run the [`deploy.ps1`](./Deploy/deploy.ps1) script. Its parameters are:
+2. Create an `azuredeploy.parameters.json` file with the following parameters:
+   - `email`: You contact email for Let's Encrypt.
+   - `domains`: A semicolon-separated list of domains for which certificates need to be gotten.
+   - `imageVersion`: The version of the Docker image that you want to use.
+3. Run the [`deploy.ps1`](./Deploy/deploy.ps1) script. Its parameters are:
    - `$ResourceGroup`: The name of the resource group you just created.
-   - `$ZoneResourceGroup`: The name of the resource group in which your DNS zone lives.
-   - `$ZoneName`: The name of your DNS zone.
-3. The Logic App may require manual attention (the API connection isn't authenticated at first).
+   - `$ZoneNames`: The names of your DNS zones, separated by semicolons.
+4. The Logic App may require manual attention (the API connection isn't authenticated at first).
 
-Everything should work. Feel free to report any bugs.
+Everything should work. Feel free to [report any bugs](https://github.com/nidrissi/Posh-ACME-docker/issues).
