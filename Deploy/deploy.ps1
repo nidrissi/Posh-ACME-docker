@@ -1,14 +1,11 @@
 [CmdletBinding(SupportsShouldProcess)]
 param (
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, HelpMessage = "Resource group for the deployment.")]
     [string]
     $ResourceGroup,
-    [Parameter(Mandatory)]
-    [string]
-    $ZoneResourceGroup,
-    [Parameter(Mandatory)]
-    [string]
-    $ZoneName
+    [Parameter(Mandatory, HelpMessage = "Zones to grant access to.")]
+    [string[]]
+    $ZoneNames
 )
 
 # Deploy
@@ -20,23 +17,27 @@ if ($Deployment.Outputs) {
     Write-Verbose "Getting the container group"
     $ContainerGroup = Get-AzContainerGroup -ResourceGroupName $ResourceGroup -Name $Deployment.Outputs.container.Value
 
-    # The zone
-    $ZoneResource = Get-AzResource -ResourceGroupName $ZoneResourceGroup -Name $ZoneName
-    $ZoneScope = $ZoneResource.ResourceId
+    foreach ($ZoneName in $ZoneNames) {
+        Write-Verbose "Working on zone $ZoneName."
+        # The zone
+        $ZoneResource = Get-AzResource -Name $ZoneName -ResourceType 'Microsoft.Network/dnszones'
+        $ZoneScope = $ZoneResource.ResourceId
+        Write-Verbose "Zone ID: $ZoneScope"
 
-    # Roles
-    $RoleArguments = @{
-        ObjectId           = $ContainerGroup.Identity.PrincipalId;
-        RoleDefinitionName = "DNS Zone Contributor";
-        Scope              = $ZoneScope
-    }
-    Write-Verbose "Checking if role is assigned."
-    if (-not (Get-AzRoleAssignment @RoleArguments)) {
-        Write-Verbose "Assigning role."
-        New-AzRoleAssignment @RoleArguments
-    }
-    else {
-        Write-Verbose "Not assigning role: already assigned."
+        # Roles
+        $RoleArguments = @{
+            ObjectId           = $ContainerGroup.Identity.PrincipalId;
+            RoleDefinitionName = "DNS Zone Contributor";
+            Scope              = $ZoneScope
+        }
+        Write-Verbose "Checking if role is assigned."
+        if (-not (Get-AzRoleAssignment @RoleArguments)) {
+            Write-Verbose "Assigning role."
+            New-AzRoleAssignment @RoleArguments
+        }
+        else {
+            Write-Verbose "Not assigning role: already assigned."
+        }
     }
 
     # Start the container, for real this time
