@@ -1,12 +1,9 @@
 [CmdletBinding(SupportsShouldProcess)]
 param (
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, HelpMessage = "Resource group for the deployment.")]
     [string]
     $ResourceGroup,
-    [Parameter(Mandatory)]
-    [string]
-    $ZoneResourceGroup,
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, HelpMessage = "Zone to grant access to.")]
     [string]
     $ZoneName
 )
@@ -21,7 +18,7 @@ if ($Deployment.Outputs) {
     $ContainerGroup = Get-AzContainerGroup -ResourceGroupName $ResourceGroup -Name $Deployment.Outputs.container.Value
 
     # The zone
-    $ZoneResource = Get-AzResource -ResourceGroupName $ZoneResourceGroup -Name $ZoneName
+    $ZoneResource = Get-AzResource -Name $ZoneName
     $ZoneScope = $ZoneResource.ResourceId
 
     # Roles
