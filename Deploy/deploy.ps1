@@ -53,10 +53,16 @@ Ignore the previous error message if it says:
     $Connection = Get-AzResource -ResourceType 'Microsoft.Web/connections' -ResourceGroupName $ResourceGroup -ResourceName 'aci'
     $Status = $Connection.Properties.Statuses[0].status
     if ($Status -ne 'Connected') {
-        Write-Warning "API status is $Status"
         $LogicApp = $Deployment.Outputs.logicAppName.Value
         # I should find a way to do this automatically
-        "It may need authenticating:!- Go to the portal;!- Open the Logic App $LogicApp;!- In the designer, click on the action;!- Modify the connection and authorize it." -split '!' | Write-Warning
+        Write-Warning @"
+API status is $Status.
+It may need authenticating:
+- Go to the portal;
+- Open the Logic App $LogicApp;
+- In the designer, click on the action;
+- Modify the connection and authorize it.
+"@
     }
     else {
         Write-Verbose "API connection already established."
