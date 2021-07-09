@@ -2,6 +2,9 @@
 
 An Azure-containerized version of [Posh-ACME](https://github.com/rmbolger/Posh-ACME).
 
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/nidrissi/Posh-ACME-docker)
+![Last commit](https://img.shields.io/github/last-commit/nidrissi/Posh-ACME-docker)
+
 ## Prerequisites
 
 - An [Azure account](https://azure.microsoft.com/).
