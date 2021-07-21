@@ -70,5 +70,6 @@ It may need authenticating:
     }
 }
 else {
-    Write-Warning "No outputs!"
+    Write-Error "No outputs!"
+    exit 1
 }
