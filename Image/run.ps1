@@ -48,7 +48,7 @@ function Import-MyCertificates {
 
     foreach ($CurrentDomain in $DomainsToImport) {
         # A KeyVault certificate's name cannot contain a dot
-        $SanitizedDomain = $env:Domain -replace '\.', '-'
+        $SanitizedDomain = $CurrentDomain -replace '\.', '-'
 
         # Get the certificate info for the domain
         $Certificate = Get-PACertificate -MainDomain $CurrentDomain
