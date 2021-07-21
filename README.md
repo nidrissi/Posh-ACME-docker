@@ -32,7 +32,7 @@ This should automatically obtain an SSL certificate from [Let's Encrypt](https:/
    - `imageVersion`: The version of the Docker image that you want to use.
 3. Run the [`deploy.ps1`](./Deploy/deploy.ps1) script. Its parameters are:
    - `$ResourceGroup`: The name of the resource group you just created.
-   - `$ZoneNames`: The names of your DNS zones, separated by semicolons.
+   - `$ZoneNames`: The names of your DNS zones, separated by commas.
 4. The Logic App may require manual attention (the API connection isn't authenticated at first).
 
 Everything should work. Feel free to [report any bugs](https://github.com/nidrissi/Posh-ACME-docker/issues).
