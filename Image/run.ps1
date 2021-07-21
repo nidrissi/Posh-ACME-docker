@@ -29,8 +29,7 @@ function Import-MyCertificates {
         [Parameter()]
         [string]
         $Domain,
-        [Parameter()]
-        [boolean]
+        [Switch]
         $All
     )
 
